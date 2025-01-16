@@ -3,7 +3,7 @@ import { getUserColor } from "@/lib/utils";
 import { currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 
-export async function POST(request: Request) {
+export async function POST(_request: Request) {
 	const clerkUser = await currentUser();
 
 	if (!clerkUser) redirect("/sign-in");

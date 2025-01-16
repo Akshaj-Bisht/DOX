@@ -8,8 +8,13 @@ import {
 	LiveblocksProvider,
 } from "@liveblocks/react/suspense";
 import { ReactNode } from "react";
+
 const Provider = ({ children }: { children: ReactNode }) => {
 	const { user: clerkUser } = useUser();
+
+	// Safely access the email address with a fallback for undefined cases
+	const currentUserEmail = clerkUser?.emailAddresses?.[0]?.emailAddress;
+
 	return (
 		<LiveblocksProvider
 			authEndpoint="/api/liveblocks-auth"
@@ -18,9 +23,14 @@ const Provider = ({ children }: { children: ReactNode }) => {
 				return users;
 			}}
 			resolveMentionSuggestions={async ({ text, roomId }) => {
+				if (!currentUserEmail) {
+					console.warn("Current user email is not defined.");
+					return [];
+				}
+
 				const roomUsers = await getDocumentUsers({
 					roomId,
-					currentUser: clerkUser?.emailAddresses[0].emailAddress!,
+					currentUser: currentUserEmail,
 					text,
 				});
 				return roomUsers;
@@ -30,4 +40,5 @@ const Provider = ({ children }: { children: ReactNode }) => {
 		</LiveblocksProvider>
 	);
 };
+
 export default Provider;

@@ -15,7 +15,13 @@ declare type RoomMetadata = {
 	email: string;
 	title: string;
 };
-
+declare type roomDocuments = {
+	id: string;
+	metadata: {
+		title: string;
+	};
+	createdAt: string;
+};
 declare type CreateDocumentParams = {
 	userId: string;
 	email: string;

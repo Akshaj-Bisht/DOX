@@ -23,7 +23,7 @@ export const getClerkUsers = async ({ userIds }: { userIds: string[] }) => {
 
 		return parseStringify(sortedUsers);
 	} catch (error) {
-		console.log(`Error fetching users: ${error}`);
+		console.error(`Error fetching users: ${error}`);
 	}
 };
 
@@ -55,6 +55,6 @@ export const getDocumentUsers = async ({
 
 		return parseStringify(users);
 	} catch (error) {
-		console.log(`Error fetching document users: ${error}`);
+		console.error(`Error fetching document users: ${error}`);
 	}
 };

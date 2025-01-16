@@ -31,11 +31,23 @@ const eslintConfig = [
 			// Turn off React PropTypes rule (if using TypeScript for props)
 			"react/prop-types": "off",
 
-			// Optionally allow console statements (set to 'warn' or 'off')
-			"no-console": "warn",
+			// Adjust no-console to allow console statements as warnings
+			"no-console": [
+				"warn",
+				{
+					allow: ["warn", "error"], // Allow specific methods
+				},
+			],
 
-			// Ignore the requirement of default exports in modules
-			"import/prefer-default-export": "off",
+			// Rule for unused expressions (e.g., short-circuit evaluations)
+			"@typescript-eslint/no-unused-expressions": [
+				"error",
+				{
+					allowShortCircuit: true, // Allow logical AND/OR short circuits
+					allowTernary: true, // Allow ternary expressions
+					allowTaggedTemplates: false, // Disallow tagged template literals
+				},
+			],
 		},
 	},
 ];
