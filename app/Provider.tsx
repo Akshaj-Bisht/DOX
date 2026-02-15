@@ -4,41 +4,49 @@ import { getClerkUsers, getDocumentUsers } from "@/lib/actions/user.actions";
 import { useUser } from "@clerk/nextjs";
 
 import {
-	ClientSideSuspense,
-	LiveblocksProvider,
+  ClientSideSuspense,
+  LiveblocksProvider,
 } from "@liveblocks/react/suspense";
 import { ReactNode } from "react";
 
+const ClerkLiveblocksProvider = ({ children }: { children: ReactNode }) => {
+  const { user: clerkUser } = useUser();
+
+  // Safely access the email address with a fallback for undefined cases
+  const currentUserEmail = clerkUser?.emailAddresses?.[0]?.emailAddress;
+
+  return (
+    <LiveblocksProvider
+      authEndpoint="/api/liveblocks-auth"
+      resolveUsers={async ({ userIds }) => {
+        const users = await getClerkUsers({ userIds });
+        return users;
+      }}
+      resolveMentionSuggestions={async ({ text, roomId }) => {
+        if (!currentUserEmail) {
+          console.warn("Current user email is not defined.");
+          return [];
+        }
+
+        const roomUsers = await getDocumentUsers({
+          roomId,
+          currentUser: currentUserEmail,
+          text,
+        });
+        return roomUsers;
+      }}
+    >
+      <ClientSideSuspense fallback={<Loader />}>{children}</ClientSideSuspense>
+    </LiveblocksProvider>
+  );
+};
+
 const Provider = ({ children }: { children: ReactNode }) => {
-	const { user: clerkUser } = useUser();
+  if (!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY) {
+    return <>{children}</>;
+  }
 
-	// Safely access the email address with a fallback for undefined cases
-	const currentUserEmail = clerkUser?.emailAddresses?.[0]?.emailAddress;
-
-	return (
-		<LiveblocksProvider
-			authEndpoint="/api/liveblocks-auth"
-			resolveUsers={async ({ userIds }) => {
-				const users = await getClerkUsers({ userIds });
-				return users;
-			}}
-			resolveMentionSuggestions={async ({ text, roomId }) => {
-				if (!currentUserEmail) {
-					console.warn("Current user email is not defined.");
-					return [];
-				}
-
-				const roomUsers = await getDocumentUsers({
-					roomId,
-					currentUser: currentUserEmail,
-					text,
-				});
-				return roomUsers;
-			}}
-		>
-			<ClientSideSuspense fallback={<Loader />}>{children}</ClientSideSuspense>
-		</LiveblocksProvider>
-	);
+  return <ClerkLiveblocksProvider>{children}</ClerkLiveblocksProvider>;
 };
 
 export default Provider;

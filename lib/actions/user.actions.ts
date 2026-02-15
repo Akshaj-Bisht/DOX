@@ -2,59 +2,60 @@
 
 import { clerkClient } from "@clerk/express";
 import { parseStringify } from "../utils";
-import { liveblocks } from "../liveblocks";
+import { getLiveblocks } from "../liveblocks";
 
 export const getClerkUsers = async ({ userIds }: { userIds: string[] }) => {
-	try {
-		const { data } = await clerkClient.users.getUserList({
-			emailAddress: userIds,
-		});
+  try {
+    const { data } = await clerkClient.users.getUserList({
+      emailAddress: userIds,
+    });
 
-		const users = data.map((user) => ({
-			id: user.id,
-			name: `${user.firstName} ${user.lastName}`,
-			email: user.emailAddresses[0].emailAddress,
-			avatar: user.imageUrl,
-		}));
+    const users = data.map((user) => ({
+      id: user.id,
+      name: `${user.firstName} ${user.lastName}`,
+      email: user.emailAddresses[0].emailAddress,
+      avatar: user.imageUrl,
+    }));
 
-		const sortedUsers = userIds.map((email) =>
-			users.find((user) => user.email === email)
-		);
+    const sortedUsers = userIds.map((email) =>
+      users.find((user) => user.email === email),
+    );
 
-		return parseStringify(sortedUsers);
-	} catch (error) {
-		console.error(`Error fetching users: ${error}`);
-	}
+    return parseStringify(sortedUsers);
+  } catch (error) {
+    console.error(`Error fetching users: ${error}`);
+  }
 };
 
 export const getDocumentUsers = async ({
-	roomId,
-	currentUser,
-	text,
+  roomId,
+  currentUser,
+  text,
 }: {
-	roomId: string;
-	currentUser: string;
-	text: string;
+  roomId: string;
+  currentUser: string;
+  text: string;
 }) => {
-	try {
-		const room = await liveblocks.getRoom(roomId);
+  try {
+    const liveblocks = getLiveblocks();
+    const room = await liveblocks.getRoom(roomId);
 
-		const users = Object.keys(room.usersAccesses).filter(
-			(email) => email !== currentUser
-		);
+    const users = Object.keys(room.usersAccesses).filter(
+      (email) => email !== currentUser,
+    );
 
-		if (text.length) {
-			const lowerCaseText = text.toLowerCase();
+    if (text.length) {
+      const lowerCaseText = text.toLowerCase();
 
-			const filteredUsers = users.filter((email: string) =>
-				email.toLowerCase().includes(lowerCaseText)
-			);
+      const filteredUsers = users.filter((email: string) =>
+        email.toLowerCase().includes(lowerCaseText),
+      );
 
-			return parseStringify(filteredUsers);
-		}
+      return parseStringify(filteredUsers);
+    }
 
-		return parseStringify(users);
-	} catch (error) {
-		console.error(`Error fetching document users: ${error}`);
-	}
+    return parseStringify(users);
+  } catch (error) {
+    console.error(`Error fetching document users: ${error}`);
+  }
 };
