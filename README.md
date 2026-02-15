@@ -2,6 +2,18 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Getting Started
 
+### Environment setup
+
+1. Copy [.env.example](.env.example) to `.env.local`.
+2. Fill in your Clerk and Liveblocks keys.
+3. In Vercel, add the same variables under Project Settings → Environment Variables.
+
+Required for full app functionality:
+
+- `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`
+- `CLERK_SECRET_KEY`
+- `LIVEBLOCKS_SECRET` (or `LIVEBLOCKS_SECRET_KEY`)
+
 First, run the development server:
 
 ```bash
